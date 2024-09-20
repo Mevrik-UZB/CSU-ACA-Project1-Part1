@@ -1,0 +1,61 @@
+# MIPS Simulator with ADD, NAND, and MULT Implementation
+
+# Define opcodes
+ADD_OPCODE = 0x20
+NAND_OPCODE = 0x0C
+MULT_OPCODE = 0x18
+
+# Simulated memory and registers
+memory = [0] * 1024
+registers = [0] * 32
+
+# Function for ADD
+def add(r1, r2, rd):
+    registers[rd] = registers[r1] + registers[r2]
+
+# Function for NAND
+def nand(r1, r2, rd):
+    registers[rd] = ~(registers[r1] & registers[r2]) & 0xFFFFFFFF
+
+# Function for MULT
+def mult(r1, r2):
+    result = registers[r1] * registers[r2]
+    print(f"MULT result (not stored): {result}")  # Placeholder implementation
+
+# Main simulation function for instruction execution
+def simulate(instructions):
+    for instruction in instructions:
+        opcode = instruction >> 26
+        if opcode == ADD_OPCODE:
+            rs = (instruction >> 21) & 0x1F
+            rt = (instruction >> 16) & 0x1F
+            rd = (instruction >> 11) & 0x1F
+            add(rs, rt, rd)
+            print(f"ADD: R[{rd}] = R[{rs}] + R[{rt}] = {registers[rd]}")
+        elif opcode == NAND_OPCODE:
+            rs = (instruction >> 21) & 0x1F
+            rt = (instruction >> 16) & 0x1F
+            rd = (instruction >> 11) & 0x1F
+            nand(rs, rt, rd)
+            print(f"NAND: R[{rd}] = ~(R[{rs}] & R[{rt}]) = {registers[rd]}")
+        elif opcode == MULT_OPCODE:
+            rs = (instruction >> 21) & 0x1F
+            rt = (instruction >> 16) & 0x1F
+            mult(rs, rt)
+
+# Test cases
+def test_arithmetic():
+    print("Testing ADD, NAND, and MULT")
+    # Set initial values in registers
+    registers[1] = 5
+    registers[2] = 3
+    instructions = [
+        (ADD_OPCODE << 26) | (1 << 21) | (2 << 16) | (3 << 11),  # ADD $3, $1, $2
+        (NAND_OPCODE << 26) | (1 << 21) | (2 << 16) | (4 << 11),  # NAND $4, $1, $2
+        (MULT_OPCODE << 26) | (1 << 21) | (2 << 16)  # MULT $1, $2
+    ]
+    simulate(instructions)
+
+# Run test case
+if __name__ == "__main__":
+    test_arithmetic()
